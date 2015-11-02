@@ -1,0 +1,40 @@
+{
+  "name": "Mobile Icon Sketcher",
+  "description": "Plugins to create iOS & Android Icon sizes",
+  "author": "Tim Turner",
+  "homepage": "https://github.com/fedoranimus/mobile-icon-sketcher",
+  "version": 0.1,
+  "identifier": "com.fedoranimus.mobile-icon-sketcher",
+  "compatibleVersion": 3,
+  "bundleVersion": 1,
+  "commands": [
+    {
+      "name": "All Platforms",
+      "identifier": "all",
+      "shortcut": "ctrl shift a",
+      "script": "script.cocoascript",
+      "handler": "runAll"
+    },
+    {
+      "name": "iOS",
+      "identifier": "ios",
+      "shortcut": "ctrl shift i",
+      "script": "script.cocoascript",
+      "handler": "runApple"
+    },
+    {
+      "name": "Android",
+      "identifier": "android",
+      "shortcut": "ctrl shift d",
+      "script": "script.cocoascript",
+      "handler": "runAndroid"
+    }
+  ],
+  "menu": {
+    "items": [
+      "all",
+      "ios",
+      "android"
+    ]
+  }
+}

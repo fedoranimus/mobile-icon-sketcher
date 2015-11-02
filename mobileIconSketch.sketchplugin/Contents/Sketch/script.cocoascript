@@ -1,0 +1,13 @@
+var runAll = function (context) {
+  log("onAll");
+  this.runApple(context);
+  this.runAndroid(context);
+}
+
+var runApple = function (context) {
+  log("onApple");
+}
+
+var runAndroid = function (context) {
+  log("onAndroid");
+}

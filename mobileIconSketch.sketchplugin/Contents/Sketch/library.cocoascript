@@ -1,0 +1,38 @@
+// iOS icons
+var appleIcons = [29, 40, 60, 76, 512];
+// Android icons
+var androidIcons = [48, 72, 96, 144, 192, 512];
+//48 × 48 (mdpi) 72 × 72 (hdpi) 96 × 96 (xhdpi) 144 × 144 (xxhdpi) 192 × 192 (xxxhdpi) 512 × 512
+
+function selectionProcessor(context) {
+  var document = context.document;
+  var selection = context.selection;
+  var originalArtboard;
+
+  if(selection.count == 0) {
+    document.showMessage("You have nothing selected");  //update this to handle documents with a single artboard and nothing selected
+  } else {
+    //do something with the artboards
+  }
+}
+
+function scale(selection, newSize, artboardLabel) {
+  var icon = selection.duplicate;
+
+  var originalSize = selection.frame.width;
+  var scale = newSize / originalSize;
+  icon.multiplyBy(scale);
+
+  icon.setName(artboardLabel);
+  [icon select:true byExpandingSelection:true]; //can I convert this to JS easily?
+
+  return icon;
+}
+
+function clearGeneratedArtboards(context) {
+  log("Clearing generated artboards...");
+  log("Generated artboards cleared");
+
+}
+
+(log("Library Loaded"));

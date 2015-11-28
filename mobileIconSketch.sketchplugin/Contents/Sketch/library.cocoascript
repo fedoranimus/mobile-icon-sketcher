@@ -1,38 +1,157 @@
+(log("Library Started"));
 // iOS icons
-var appleIcons = [29, 40, 60, 76, 512];
+var appleIcons = [nil, 29, 40, 60, 76, 512];
 // Android icons
-var androidIcons = [48, 72, 96, 144, 192, 512];
+var androidIcons = [nil, 48, 72, 96, 144, 192, 512];
 //48 × 48 (mdpi) 72 × 72 (hdpi) 96 × 96 (xhdpi) 144 × 144 (xxhdpi) 192 × 192 (xxxhdpi) 512 × 512
+var isAndroid = false;
+var isApple = false;
+var appleArtboards = [NSArray arrayWithObjects:"Icon-29", "Icon-29@2x", "Icon-29@3x", "Icon-40", "Icon-40@2x", "Icon-40@3x", "Icon-60", "Icon-60@2x", "Icon-60@3x", "Icon-76", "Icon-76@2x", "Icon-76@3x", "iTunesArtwork-512", "iTunesArtwork-512@2x" , nil];
+var androidArtboards = [NSArray arrayWithObjects:"Icon-mdpi", "Icon-hdpi", "Icon-xhdpi", "Icon-xxhdpi", "Icon-xxxhdpi", "Icon-PlayStore", nil];
 
 function selectionProcessor(context) {
-  var document = context.document;
-  var selection = context.selection;
-  var originalArtboard;
-
-  if(selection.count == 0) {
-    document.showMessage("You have nothing selected");  //update this to handle documents with a single artboard and nothing selected
-  } else {
-    //do something with the artboards
+  log("Selector Processor");
+  var doc = context.document;
+  if (originalIcon = handleSelection(context)) {
+    if ([[originalIcon frame] width] == [[originalIcon frame] height]) {
+      [originalIcon setName: "Icon-Original"];
+      clearGeneratedArtboards(context);
+      iconize(originalIcon);
+      [[doc currentView] centerLayersInCanvas];
+    } else {
+      [doc showMessage:"Oops, icon artboard must have same width and height"];
+    }
   }
 }
 
-function scale(selection, newSize, artboardLabel) {
-  var icon = selection.duplicate;
+function iconize(originalIcon) {
+  log("Iconize");
+  var originalSize = [[originalIcon frame] width];
+  var originalX = [[originalIcon absoluteRect] rulerX];
+  var originalY = [[originalIcon absoluteRect] rulerY];
+  var spacing = 40;
+  var iconsRowHeight = 0;
+  if(this.isApple) {
+    log("isApple Iconize");
+    var loop = [appleIcons objectEnumerator];
+    while (newSize = [loop nextObject]) {
+      log("newSize", newSize);
+      if (newSize >= 512) {
+        var iconName = "iTunesArtwork-" + newSize;
 
-  var originalSize = selection.frame.width;
-  var scale = newSize / originalSize;
-  icon.multiplyBy(scale);
+        var newX = originalX;
+        var newY = originalY + originalSize + spacing;
 
-  icon.setName(artboardLabel);
-  [icon select:true byExpandingSelection:true]; //can I convert this to JS easily?
+        // iTunesArtwork-512@2x
+        var artwork2x = scaleIcon(originalIcon, (newSize * 2), iconName + "@2x");
+        [[artwork2x absoluteRect] setRulerX:newX];
+        [[artwork2x absoluteRect] setRulerY:newY];
 
-  return icon;
+        // iTunesArtwork-512
+        var artwork1x = scaleIcon(originalIcon, newSize, iconName);
+        [[artwork1x absoluteRect] setRulerX:newX + (newSize * 2) + spacing];
+        [[artwork1x absoluteRect] setRulerY:newY];
+      } else {
+        var iconName = "Icon-" + newSize;
+
+        var newX = originalX + (1024 + 512 + (2 * spacing));
+        var newY = originalY + originalSize + iconsRowHeight + spacing;
+
+        // Icon-Size@3x
+        var icon3x = scaleIcon(originalIcon, newSize * 3, iconName + "@3x");
+        [[icon3x absoluteRect] setRulerX:newX];
+        [[icon3x absoluteRect] setRulerY:newY];
+
+        // Icon-Size@2x
+        var icon2x = scaleIcon(originalIcon, newSize * 2, iconName + "@2x");
+        [[icon2x absoluteRect] setRulerX:newX + (newSize * 3) + spacing];
+        [[icon2x absoluteRect] setRulerY:newY];
+
+        // Icon-Size
+        var icon1x = scaleIcon(originalIcon, newSize, iconName);
+        [[icon1x absoluteRect] setRulerX:newX + (newSize * 3) + (newSize * 2) + (2 * spacing)];
+        [[icon1x absoluteRect] setRulerY:newY];
+
+        // create new row
+        iconsRowHeight += (newSize * 3) + spacing;
+      }
+    }
+  }
+  if(isAndroid) {
+    log("isAndroid Iconize");
+    var loop = [androidIcons objectEnumerator];
+    while (newSize = [loop nextObject]) {
+      log("newSize", newSize);
+      var iconName = "Icon-";
+      //48 × 48 (mdpi) 72 × 72 (hdpi) 96 × 96 (xhdpi) 144 × 144 (xxhdpi) 192 × 192 (xxxhdpi) 512 × 512
+      switch(newSize) {
+        case 48:
+          iconName += "mdpi";
+          break;
+        case 72:
+          iconName += "hdpi";
+          break;
+        case 96:
+          iconName += "xhdpi";
+          break;
+        case 144:
+          iconName += "xxhdpi";
+          break;
+        case 192:
+          iconName += "xxxhdpi";
+          break;
+        case 512:
+          iconName += "PlayStore":
+          break;
+      }
+
+      var newX = originalX + (1024 + 512 + (2 * spacing));
+      var newY = originalY + originalSize + iconsRowHeight + spacing;
+
+      // Icon-Size
+      var icon1x = scaleIcon(originalIcon, newSize, iconName);
+      [[icon1x absoluteRect] setRulerX:newX + (newSize * 3) + (newSize * 2) + (2 * spacing)];
+      [[icon1x absoluteRect] setRulerY:newY];
+
+      // create new row
+      iconsRowHeight += (newSize * 3) + spacing;
+    }
+  }
+}
+
+function scaleIcon(originalIcon, newSize, newName) {
+  var newIcon = [originalIcon duplicate];
+
+  var originalSize = [[originalIcon frame] width];
+  var ratio = newSize / originalSize;
+  [newIcon multiplyBy:ratio];
+
+  [newIcon setName: newName];
+  [newIcon select:true byExpandingSelection:true];
+
+  return newIcon;
 }
 
 function clearGeneratedArtboards(context) {
-  log("Clearing generated artboards...");
-  log("Generated artboards cleared");
-
+  log("clear generated artboards");
+  var doc = context.document;
+  var artboards = [[doc currentPage] artboards];
+  var loop = [artboards objectEnumerator];
+  while (artboard = [loop nextObject]) {
+    var name = [artboard name];
+    var artboardNames = [];
+    if(isAndroid) {
+      log(androidArtboards);
+      log(this.androidArtboards);
+      artboardNames.concat(androidArtboards);
+    }
+    if(isApple) {
+      artboardNames.concat(appleArtboards);
+    }
+    if ([artboardNames containsObject: name]) {
+      [[doc currentPage] removeLayer:artboard];
+    }
+  }
 }
 
 (log("Library Loaded"));

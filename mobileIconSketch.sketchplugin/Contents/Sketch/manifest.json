@@ -3,7 +3,7 @@
   "description": "Plugins to create iOS & Android Icon sizes",
   "author": "Tim Turner",
   "homepage": "https://github.com/fedoranimus/mobile-icon-sketcher",
-  "version": 0.1,
+  "version": 0.2,
   "identifier": "com.fedoranimus.mobile-icon-sketcher",
   "compatibleVersion": 3,
   "bundleVersion": 1,

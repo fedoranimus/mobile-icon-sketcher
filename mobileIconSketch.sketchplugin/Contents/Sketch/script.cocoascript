@@ -7,9 +7,13 @@ var runAll = function (context) {
 }
 
 var runApple = function (context) {
+  this.isApple = true;
   log("onApple");
+  this.selectorProcessor(context);
 }
 
 var runAndroid = function (context) {
+  this.isAndroid = true;
   log("onAndroid");
+  this.selectorProcessor(context);
 }
